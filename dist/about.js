@@ -1,0 +1,1 @@
+"use strict";(()=>{var n;$(".about-find_item").hover(function(){var o=$(".about-find_img-gallery"),i=o.children().not(":first-child");i.hide();var e=0;function t(){i.hide(),i.eq(e).show(),e=(e+1)%i.length,n=setTimeout(t,1e3)}t()},function(){clearTimeout(n),$(".about-find_img-gallery").children().not(":first-child").hide()});})();
