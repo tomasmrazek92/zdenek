@@ -3,6 +3,7 @@
   "compilerOptions": {
     "noImplicitThis": false,
     "esModuleInterop": true,
+    "ignoreDeprecations": "5.0",
     "strict": true,
     "useUnknownInCatchVariables": false,
     "rootDir": ".",

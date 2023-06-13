@@ -1,21 +1,4 @@
 $(document).ready(function () {
-  // --- Work Cards
-  $(document).ready(function () {
-    $('.hp-work_item').hover(
-      function () {
-        const $childVideo = $(this).find('.work-video');
-        $childVideo.show();
-        $childVideo.find('video')[0].currentTime = 0; // Start from the beginning
-        $childVideo.find('video')[0].play();
-      },
-      function () {
-        const $childVideo = $(this).find('.work-video');
-        $childVideo.hide();
-        $childVideo.find('video')[0].pause();
-      }
-    );
-  });
-
   // --- Logos Card
   let logoClass = '.hp-projects_item';
   let cardClass = '.hp-projects_card';
@@ -39,4 +22,39 @@ $(document).ready(function () {
       $(logoClass).removeClass('active');
     }
   );
+
+  //-- Testimonals
+  let testimonials = '.about-test_content';
+
+  if ($(testimonials)) {
+    let swiper = new Swiper(testimonials, {
+      // Optional parameters
+      slidesPerView: 1,
+      spaceBetween: 0,
+      speed: 250,
+      effect: 'fade',
+      fadeEffect: {
+        crossFade: true,
+      },
+      observer: true,
+      navigation: {
+        nextEl: '.swiper-arrow.next',
+        prevEl: '.swiper-arrow.prev',
+      },
+      on: {
+        slideChange: (swiper) => {
+          let index = swiper.activeIndex;
+          let visuals = $('.about-test_visual-item');
+
+          console.log(index);
+
+          // hide all
+          visuals.hide();
+          visuals.eq(index).show();
+        },
+      },
+    });
+
+    console.log(swiper);
+  }
 });
