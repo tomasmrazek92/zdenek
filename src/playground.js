@@ -1,4 +1,4 @@
-/* Drawing */
+/* --- Drawing */
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 let drawing = false;
@@ -43,46 +43,124 @@ canvas.addEventListener('mouseup', () => {
   );
 
   // Set the value of the hidden input field
-  imageDataInput.value = textString;
+  imageDataInput.value = base64Image;
 });
 
-/* Modals */
+$('#createBtn').on('click', function () {
+  $('#submitBtn').trigger('click');
+});
 
+/* --- Modals */
 const modal = '.plg-modal';
 const modalContent = '.plg-modal_content';
+const modalSlider = '.plg-modal_slider';
 let item;
+let swiper;
+let modalOpen = false;
+let init = false;
+let scrollPosition;
 
+// --- Open Modal
 $('.plg-visuals_visual').on('click', function () {
-  var item = $(this);
-  var name = item.find('.name').val();
-  var slug = item.find('.slug').val();
-  var modal = '.plg-modal';
-  var modalContent = '.plg-modal_content';
+  let item = $(this);
+  let name = item.find('.name').val();
+  let slug = item.find('.slug').val();
 
-  $(modalContent)
-    .empty()
-    .load('/playground-items/' + slug + ' ' + '.plg-modal_slider', function () {
-      $('.plg-modal_head-inner p').text(name);
-      let tl = gsap.timeline();
-      tl.set(modal, {
-        opacity: 0,
-      });
-      tl.to(modal, {
-        opacity: 1,
-        display: 'block',
-      });
-      let items = $(modal).find('.plg-modal_item-1');
-      tl.from(items, {
-        y: '2rem',
-        opacity: 0,
-        stagger: {
-          each: 0.2,
-        },
-      });
+  // Reset
+  $(modalContent).empty();
+
+  // Reveal
+  let tl = gsap.timeline();
+  tl.set(modal, {
+    opacity: 0,
+  });
+  tl.to(modal, {
+    opacity: 1,
+    display: 'block',
+  });
+
+  // Load
+  $(modalContent).load('/playground-items/' + slug + ' ' + '.plg-modal_slider', function () {
+    modalOpen = true;
+
+    // Disable Scroll
+    disableScroll();
+
+    // Swiper
+    swiperMode(modalSlider);
+
+    // Content
+    $('.plg-modal_head-inner p').text(name);
+    let items = $(modal).find('.plg-modal_item-1');
+    let tl = gsap.timeline();
+    tl.from(items, {
+      y: '2rem',
+      opacity: 0,
+      stagger: {
+        each: 0.2,
+      },
     });
+  });
 });
 
+function swiperMode(swiperInstance) {
+  const mobile = window.matchMedia('(min-width: 0px) and (max-width: 991px)');
+  const desktop = window.matchMedia('(min-width: 992px)');
+
+  if (modalOpen) {
+    // Disable (for desktop)
+    if (desktop.matches) {
+      if (!init) {
+        init = true;
+        swiper = new Swiper(swiperInstance, {
+          // Optional parameters
+          slidesPerView: 'auto',
+          spaceBetween: 48,
+          speed: 500,
+          observer: true,
+          mousewheel: {
+            invert: true,
+            forceToAxis: true,
+          },
+          keyboard: {
+            enabled: true,
+          },
+        });
+      }
+    }
+
+    // Enable (for Mobile)
+    else if (mobile.matches) {
+      if (init) {
+        swiper.destroy(true, true);
+        init = false;
+      }
+    }
+  }
+}
+
+// Load
+window.addEventListener('load', function () {
+  swiperMode(modalSlider);
+});
+
+// Resize
+window.addEventListener('resize', function () {
+  swiperMode(modalSlider);
+});
+
+// --- Close Modal
 $('#modalClose').on('click', function () {
+  // Swiper
+  if (swiper) {
+    swiper.destroy();
+  }
+  modalOpen = false;
+
+  // Enable Scroll
+  disableScroll();
+
+  // Animation
   let tl = gsap.timeline();
   let items = $(modal).find('.plg-modal_item-1');
   tl.to(items, {
@@ -92,8 +170,22 @@ $('#modalClose').on('click', function () {
       each: 0.2,
     },
   });
-  tl.to(modal, {
-    opacity: 0,
-  });
+  tl.to(
+    modal,
+    {
+      opacity: 0,
+    },
+    '<'
+  );
   tl.set(modal, { display: 'none' });
 });
+
+// Scroll Disabler
+const disableScroll = () => {
+  if (modalOpen) {
+    scrollPosition = $(window).scrollTop();
+    $('html, body').scrollTop(0).addClass('overflow-hidden');
+  } else {
+    $('html, body').scrollTop(scrollPosition).removeClass('overflow-hidden');
+  }
+};

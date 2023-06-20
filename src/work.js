@@ -13,7 +13,13 @@ $(document).ready(function () {
       items.on('click', function () {
         if ($(window).width() <= 991) {
           const tl = gsap.timeline();
-          tl.add(open($(this))).add(close(items.not($(this))), '<');
+          if (!$(this).hasClass('open')) {
+            $(this).addClass('open');
+            tl.add(open($(this))).add(close(items.not($(this))), '<');
+          } else {
+            $(this).removeClass('open');
+            tl.add(close($(this)));
+          }
         }
       });
 

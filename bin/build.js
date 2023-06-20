@@ -9,6 +9,7 @@ const PRODUCTION = process.env.NODE_ENV === 'production';
 // Config entrypoint files
 const ENTRY_POINTS = [
   'src/index.js',
+  'src/homepage.js',
   'src/about.js',
   'src/case.js',
   'src/playground.js',
