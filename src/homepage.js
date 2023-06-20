@@ -6,9 +6,11 @@ let figmaProfile = 'body';
 
 let tl = gsap.timeline({
   delay: 0.2,
+  durattion: 0.5,
   yoyo: true,
   repeat: -1,
-  repeatDelay: 1,
+  repeatDelay: 1.5,
+  ease: Power1.easeOut,
 });
 
 tl.to(figmaCursor, {

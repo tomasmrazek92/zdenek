@@ -118,10 +118,7 @@ function swiperMode(swiperInstance) {
           spaceBetween: 48,
           speed: 500,
           observer: true,
-          mousewheel: {
-            invert: true,
-            forceToAxis: true,
-          },
+          mousewheel: true,
           keyboard: {
             enabled: true,
           },
