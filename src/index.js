@@ -63,34 +63,43 @@ $(document).ready(function () {
     tagName: 'span',
   });
 
-  function animateChars(chars, individualDuration, direction) {
-    chars.each(function (index) {
-      let duration = individualDuration;
+  function handleButtonInteraction(elem) {
+    let labels = $(elem).find('.button_label div');
+    let main = gsap.timeline({ paused: true });
 
-      let tl = gsap.timeline({
-        defaults: {
-          delay: individualDuration * index * 0.05,
+    main.clear();
+
+    main.fromTo(
+      labels.eq(0),
+      {
+        yPercent: 0,
+      },
+      {
+        yPercent: -100,
+      }
+    );
+
+    main.fromTo(
+      labels.eq(1).find('.char'),
+      {
+        yPercent: 0,
+      },
+      {
+        yPercent: -100,
+        delay: 0.1,
+        duration: 0.7,
+        stagger: {
+          each: 0.015,
         },
-      });
-
-      tl.to($(this), {
-        yPercent: direction === 'in' ? -100 : 0,
-        duration: duration / 2,
         ease: Circ.easeOut,
-      });
-    });
+      },
+      '<'
+    );
+
+    main.restart();
   }
 
-  function handleButtonInteraction(event) {
-    let labels = $(this).find('.button_label div');
-
-    labels.each(function () {
-      let chars = $(this).find('.char');
-      let individualDuration = 0.8;
-
-      animateChars(chars, individualDuration, event.type === 'mouseenter' ? 'in' : 'out');
-    });
-  }
-
-  $('.button').on('mouseenter mouseleave', handleButtonInteraction);
+  $('.button').on('mouseenter', function () {
+    handleButtonInteraction($(this));
+  });
 });
