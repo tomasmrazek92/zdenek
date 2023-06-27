@@ -32,18 +32,12 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mouseup', () => {
   drawing = false;
 
-  const base64Image = canvas.toDataURL();
-
-  // Decode the base64-encoded image data
-  const decodedImage = atob(base64Image.split(',')[1]);
-
-  // Convert the decoded binary data to a text string
-  const textString = new TextDecoder('utf-8').decode(
-    new Uint8Array([...decodedImage].map((char) => char.charCodeAt(0)))
-  );
+  const base64Image = canvas.toDataURL('');
+  const base64Data = base64Image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
 
   // Set the value of the hidden input field
-  imageDataInput.value = base64Image;
+  imageDataInput.removeAttribute('maxlength');
+  imageDataInput.value = base64Data;
 });
 
 $('#createBtn').on('click', function () {
@@ -57,7 +51,7 @@ const modalSlider = '.plg-modal_slider';
 let item;
 let swiper;
 let modalOpen = false;
-let init = false;
+let swiperInit = false;
 let scrollPosition;
 
 // --- Open Modal
@@ -82,6 +76,10 @@ $('.plg-visuals_visual').on('click', function () {
   // Load
   $(modalContent).load('/playground-items/' + slug + ' ' + '.plg-modal_slider', function () {
     modalOpen = true;
+    if (swiperInit) {
+      swiper.destroy(true, true);
+      swiperInit = false;
+    }
 
     // Disable Scroll
     disableScroll();
@@ -110,8 +108,8 @@ function swiperMode(swiperInstance) {
   if (modalOpen) {
     // Disable (for desktop)
     if (desktop.matches) {
-      if (!init) {
-        init = true;
+      if (!swiperInit) {
+        swiperInit = true;
         swiper = new Swiper(swiperInstance, {
           // Optional parameters
           slidesPerView: 'auto',
@@ -122,15 +120,23 @@ function swiperMode(swiperInstance) {
           keyboard: {
             enabled: true,
           },
+          on: {
+            slideChange: (swiper) => {
+              handleVideos($('.swiper-wrapper'), swiper.realIndex);
+            },
+            init: (swiper) => {
+              handleVideos($('.swiper-wrapper'), swiper.realIndex);
+            },
+          },
         });
       }
     }
 
     // Enable (for Mobile)
     else if (mobile.matches) {
-      if (init) {
+      if (swiperInit) {
         swiper.destroy(true, true);
-        init = false;
+        swiperInit = false;
       }
     }
   }
@@ -145,6 +151,27 @@ window.addEventListener('load', function () {
 window.addEventListener('resize', function () {
   swiperMode(modalSlider);
 });
+
+// Handle Videos
+const handleVideos = (slider, index) => {
+  let videos = $(slider).find('[visual-video]').not('.w-condition-invisible');
+  let slides = $(slider).find('.swiper-slide');
+  let currentSlide = slides.eq(index);
+  console.log(videos);
+
+  // stop all
+  videos.each(function () {
+    $(this).find('video')[0].pause();
+    $(this).find('video')[0].currentTime = 0;
+  });
+
+  let currentVideo = currentSlide.find(videos).find('video')[0];
+  console.log(currentVideo);
+
+  if (currentVideo) {
+    currentVideo.play();
+  }
+};
 
 // --- Close Modal
 $('#modalClose').on('click', function () {

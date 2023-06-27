@@ -53,8 +53,6 @@ $(document).ready(function () {
         },
       },
     });
-
-    console.log(swiper);
   }
 
   // --- Buttons
@@ -63,43 +61,74 @@ $(document).ready(function () {
     tagName: 'span',
   });
 
-  function handleButtonInteraction(elem) {
+  function handleButtonInteraction(elem, direction) {
     let labels = $(elem).find('.button_label div');
-    let main = gsap.timeline({ paused: true });
+    if (labels.length) {
+      let main = gsap.timeline();
 
-    main.clear();
+      main.to(labels.eq(0), {
+        duration: direction === true ? 0.7 : 1.4,
+        yPercent: direction === true ? -100 : 0,
+      });
 
-    main.fromTo(
-      labels.eq(0),
-      {
-        yPercent: 0,
-      },
-      {
-        yPercent: -100,
-      }
-    );
-
-    main.fromTo(
-      labels.eq(1).find('.char'),
-      {
-        yPercent: 0,
-      },
-      {
-        yPercent: -100,
-        delay: 0.1,
-        duration: 0.7,
-        stagger: {
-          each: 0.015,
+      main.to(
+        labels.eq(1).find('.char'),
+        {
+          yPercent: direction === true ? -100 : 0,
+          delay: 0.1,
+          duration: direction === true ? 0.7 : 1,
+          stagger: {
+            each: direction === true ? 0.015 : 0,
+          },
+          ease: Circ.easeOut,
         },
-        ease: Circ.easeOut,
-      },
-      '<'
-    );
-
-    main.restart();
+        '<'
+      );
+    }
   }
 
-  $('.button').on('mouseenter', function () {
-    handleButtonInteraction($(this));
+  $('.button').on('mouseenter mouseleave', function (event) {
+    handleButtonInteraction($(this), event.type === 'mouseenter' ? true : false);
   });
+
+  // --- Transition
+  let transitionTrigger = $('.page-transition_trigger');
+  let introDurationMS = 1600;
+  let exitDurationMS = 800;
+  let excludedClass = 'no-transition';
+
+  // On Link Click
+  $('a').on('click', function (e) {
+    $('.page-transition_mask').addClass($(this).is('[work-link]') ? 'bg-dark' : 'bg-default');
+
+    if (
+      $(this).prop('hostname') === window.location.host &&
+      $(this).attr('href').indexOf('#') === -1 &&
+      !$(this).hasClass(excludedClass) &&
+      $(this).attr('target') !== '_blank' &&
+      transitionTrigger.length > 0
+    ) {
+      e.preventDefault();
+      let transitionURL = $(this).attr('href');
+      transitionTrigger.click();
+      setTimeout(function () {
+        window.location = transitionURL;
+      }, exitDurationMS);
+    }
+  });
+
+  // On Back Button Tap
+  window.onpageshow = function (event) {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  };
+  // Hide Transition on Window Width Resize
+  setTimeout(() => {
+    $(window).on('resize', function () {
+      setTimeout(() => {
+        $('.page-transition').css('display', 'none');
+      }, 50);
+    });
+  }, introDurationMS);
 });
