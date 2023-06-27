@@ -93,7 +93,7 @@ $(document).ready(function () {
 
   // --- Transition
   let transitionTrigger = $('.page-transition_trigger');
-  let introDurationMS = 1600;
+  let introDurationMS = 1000;
   let exitDurationMS = 800;
   let excludedClass = 'no-transition';
 
