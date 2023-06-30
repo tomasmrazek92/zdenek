@@ -115,8 +115,8 @@ $(document).ready(function () {
 
   // --- Transition
   let transitionTrigger = $('.page-transition_trigger');
-  let introDurationMS = 1000;
-  let exitDurationMS = 800;
+  let introDurationMS = 500;
+  let exitDurationMS = 500;
   let excludedClass = 'no-transition';
 
   // On Link Click
