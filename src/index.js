@@ -26,23 +26,29 @@ $(document).ready(function () {
       spaceBetween: 0,
       speed: 250,
       effect: 'fade',
-      autoHeight: true,
       fadeEffect: {
         crossFade: true,
       },
       loop: true,
       observer: true,
+      autoHeight: true,
       navigation: {
         nextEl: '.swiper-arrow.next',
         prevEl: '.swiper-arrow.prev',
+      },
+      breakpoints: {
+        0: {
+          autoHeight: true,
+        },
+        992: {
+          autoHeight: false,
+        },
       },
       on: {
         slideChange: (swiper) => {
           let index = swiper.realIndex;
           let visuals = $('.about-test_visual-item');
           let overlay = $('.about-test_overlay');
-
-          console.log(index);
 
           // hide all
           overlay.stop().animate({ width: '102%' }, 500, function () {
@@ -88,7 +94,23 @@ $(document).ready(function () {
   }
 
   $('.button').on('mouseenter mouseleave', function (event) {
-    handleButtonInteraction($(this), event.type === 'mouseenter' ? true : false);
+    if (window.innerWidth >= 992) {
+      handleButtonInteraction($(this), event.type === 'mouseenter' ? true : false);
+    }
+  });
+
+  // Email Copy
+  $('[email-btn]').click(function () {
+    let str = $(this).find('.button_label div:first-child').text();
+    const el = document.createElement('textarea');
+    el.value = str;
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
   });
 
   // --- Transition

@@ -22,7 +22,6 @@ $('.section_case-hero').each(function () {
         start: 'top top',
         scrub: 0.2,
         invalidateOnRefresh: true,
-        markers: true,
       },
     })
     .to('#scroll-arrow', {

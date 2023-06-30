@@ -1,9 +1,9 @@
 $(document).ready(function () {
   gsap.registerPlugin(ScrollTrigger);
+  const items = $('.all_list-item');
 
   ScrollTrigger.matchMedia({
     '(max-width: 991px)': function () {
-      const items = $('.all_list-item');
       const accordionLine = $('.all_list-accordion-line._2');
       const defaultHeight = $('.all_logo').height() + 12;
 
@@ -12,13 +12,22 @@ $(document).ready(function () {
 
       items.on('click', function () {
         if ($(window).width() <= 991) {
+          let video = $(this).find('video');
           const tl = gsap.timeline();
           if (!$(this).hasClass('open')) {
             $(this).addClass('open');
             tl.add(open($(this))).add(close(items.not($(this))), '<');
+            if (video.length) {
+              video[0].load();
+              video[0].play();
+            }
           } else {
             $(this).removeClass('open');
             tl.add(close($(this)));
+            if (video.length) {
+              $(this).find('video')[0].pause();
+              $(this).find('video')[0].currentTime = 0;
+            }
           }
         }
       });
@@ -38,4 +47,21 @@ $(document).ready(function () {
       }
     },
   });
+
+  items.hover(
+    function () {
+      let video = $(this).find('video');
+      if (video.length) {
+        video[0].load();
+        video[0].play();
+      }
+    },
+    function () {
+      let video = $(this).find('video');
+      if (video.length) {
+        $(this).find('video')[0].pause();
+        $(this).find('video')[0].currentTime = 0;
+      }
+    }
+  );
 });

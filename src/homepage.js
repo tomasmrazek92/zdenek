@@ -65,9 +65,22 @@ $(logoClass).hover(
 
     if (fullyVisible) {
       $(this).addClass('active');
+      let video = $(this).find('video');
+      if (video.length) {
+        console.log(video);
+        video[0].load();
+        video[0].play();
+      }
     }
   },
   function () {
-    $(logoClass).removeClass('active');
+    $(logoClass).each(function () {
+      $(this).removeClass('active');
+      let video = $(this).find('video');
+      if (video.length) {
+        video[0].pause();
+        video[0].currentTime = 0;
+      }
+    });
   }
 );

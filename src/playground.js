@@ -98,6 +98,16 @@ $('.plg-visuals_visual').on('click', function () {
         each: 0.2,
       },
     });
+
+    // Play All videos
+    if (window.matchMedia('(min-width: 0px) and (max-width: 991px)')) {
+      $(modalContent)
+        .find('video')
+        .each(function () {
+          $(this)[0].load();
+          $(this)[0].play();
+        });
+    }
   });
 });
 
@@ -120,12 +130,21 @@ function swiperMode(swiperInstance) {
           keyboard: {
             enabled: true,
           },
+          shortSwipes: false,
+          threshold: 200,
           on: {
             slideChange: (swiper) => {
               handleVideos($('.swiper-wrapper'), swiper.realIndex);
             },
             init: (swiper) => {
               handleVideos($('.swiper-wrapper'), swiper.realIndex);
+            },
+            onRealIndexChange: (swiper) => {
+              swiper.allowTouchMove = false;
+              swiper.unsetGrabCursor();
+            },
+            onTouchEnd: (swiper) => {
+              swiper.allowTouchMove = true;
             },
           },
         });
@@ -202,6 +221,12 @@ $('#modalClose').on('click', function () {
     '<'
   );
   tl.set(modal, { display: 'none' });
+});
+// Close on Esc
+document.addEventListener('keydown', function (event) {
+  if (modalOpen === true && event.keyCode === 27) {
+    $('#modalClose').click();
+  }
 });
 
 // Scroll Disabler

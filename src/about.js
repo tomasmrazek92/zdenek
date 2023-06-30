@@ -3,38 +3,60 @@ $(document).ready(function () {
   $('.about-find_item')
     .not('[spotify-card]')
     .each(function () {
-      var $imgBox = $(this).find('.about-find_img-gallery');
+      var $this = $(this);
+      var $imgBox = $this.find('.about-find_img-gallery');
       var $children = $imgBox.children();
       var currentIndex = 0;
       var timeoutId;
 
       function showNextItem() {
-        $children.hide(); // Hide all children
-        $children.eq(currentIndex).show(); // Show the current child
-        currentIndex = (currentIndex + 1) % $children.length; // Increment the index, wrapping around if needed
+        $children.css('visibility', 'hidden');
+        $children.eq(currentIndex).css('visibility', 'visible');
+        currentIndex = (currentIndex + 1) % $children.length;
       }
 
       function startLoop() {
         if (!timeoutId) {
-          showNextItem(); // Show the first child immediately
-          timeoutId = setInterval(showNextItem, 500); // Then start the loop
+          showNextItem();
+          timeoutId = setInterval(showNextItem, 500);
         }
       }
 
       function stopLoop() {
-        clearInterval(timeoutId); // Clear the interval to stop the loop
+        clearInterval(timeoutId);
         timeoutId = undefined;
       }
 
+      function checkElementVisibility() {
+        if (window.innerWidth <= 991) {
+          var rect = $this[0].getBoundingClientRect();
+          var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+          var offset = windowHeight * 0.15; // offset
+
+          if (rect.top >= offset && rect.bottom <= windowHeight - offset) {
+            startLoop();
+          } else {
+            stopLoop();
+          }
+        } else {
+          stopLoop();
+        }
+      }
+
+      // Hover
       $(this).hover(function () {
         showNextItem(); // Show first child immediately
         startLoop(); // Start the loop
       }, stopLoop); // Stop the loop on mouseleave
+
+      // Scroll and Resize
+      $(window).on('scroll resize', checkElementVisibility);
     });
 
   let current = 0;
   $('.about-find_spotify-icon').on('click', function () {
     let spotify = $('.about-find_spotify');
+    let spotifyText = $('.about-find_spotify-title p');
 
     current = $(this).hasClass('next') ? current + 1 : current - 1;
 
@@ -47,7 +69,9 @@ $(document).ready(function () {
     }
 
     spotify.hide();
+    spotifyText.hide();
     spotify.eq(current).show();
+    spotifyText.eq(current).show();
   });
 
   // Education
