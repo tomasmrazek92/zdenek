@@ -126,7 +126,9 @@ function swiperMode(swiperInstance) {
           spaceBetween: 48,
           speed: 500,
           observer: true,
-          mousewheel: true,
+          mousewheel: {
+            thresholdDelta: 35,
+          },
           keyboard: {
             enabled: true,
           },
