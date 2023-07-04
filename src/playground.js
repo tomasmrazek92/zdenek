@@ -2,6 +2,7 @@
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 let drawing = false;
+let base64Image;
 
 ctx.lineWidth = 5; // Set the line width to 5 pixels
 
@@ -32,16 +33,28 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mouseup', () => {
   drawing = false;
 
-  const base64Image = canvas.toDataURL('');
-  const base64Data = base64Image.replace(/^data:image\/(png|jpeg|jpg);base64,/, '');
+  base64Image = canvas.toDataURL('');
 
   // Set the value of the hidden input field
   imageDataInput.removeAttribute('maxlength');
-  imageDataInput.value = base64Data;
+  imageDataInput.value = base64Image;
 });
 
-$('#createBtn').on('click', function () {
-  $('#submitBtn').trigger('click');
+$('#createBtn').on('click', async function () {
+  const response = await fetch('https://api.zdenek.design/api/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ base64: base64Image }),
+  });
+
+  const data = await response.json();
+  if (data.success) {
+    console.log('File uploaded successfully. File URL is:', data.fileURL);
+  } else {
+    console.error('File upload error:', data.message);
+  }
 });
 
 /* --- Modals */
@@ -219,13 +232,12 @@ $('#modalClose').on('click', function () {
     },
     '<'
   );
-  tl.set(modal, { display: 'none' }, '<0.1');
-  tl.call(() => {
-    // Swiper
-    if (swiper) {
-      swiper.destroy();
-    }
-  });
+  tl.set(modal, { display: 'none' }, '<');
+
+  // Swiper
+  if (swiper) {
+    swiper.destroy();
+  }
 });
 
 // Close on Esc

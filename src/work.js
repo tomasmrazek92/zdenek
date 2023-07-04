@@ -55,6 +55,7 @@ $(document).ready(function () {
         video[0].load();
         video[0].play();
       }
+      $('.all_list-visual_inner').find('img').removeAttr('loading');
     },
     function () {
       let video = $(this).find('video');
