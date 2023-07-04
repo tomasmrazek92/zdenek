@@ -131,7 +131,6 @@ function swiperMode(swiperInstance) {
             enabled: true,
           },
           shortSwipes: false,
-          threshold: 200,
           on: {
             slideChange: (swiper) => {
               handleVideos($('.swiper-wrapper'), swiper.realIndex);
@@ -194,10 +193,6 @@ const handleVideos = (slider, index) => {
 
 // --- Close Modal
 $('#modalClose').on('click', function () {
-  // Swiper
-  if (swiper) {
-    swiper.destroy();
-  }
   modalOpen = false;
 
   // Enable Scroll
@@ -212,16 +207,25 @@ $('#modalClose').on('click', function () {
     stagger: {
       each: 0.2,
     },
+    duration: 0.3,
   });
   tl.to(
     modal,
     {
       opacity: 0,
+      duration: 0.3,
     },
     '<'
   );
-  tl.set(modal, { display: 'none' });
+  tl.set(modal, { display: 'none' }, '<0.1');
+  tl.call(() => {
+    // Swiper
+    if (swiper) {
+      swiper.destroy();
+    }
+  });
 });
+
 // Close on Esc
 document.addEventListener('keydown', function (event) {
   if (modalOpen === true && event.keyCode === 27) {

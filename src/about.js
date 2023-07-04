@@ -31,7 +31,7 @@ $(document).ready(function () {
         if (window.innerWidth <= 991) {
           var rect = $this[0].getBoundingClientRect();
           var windowHeight = window.innerHeight || document.documentElement.clientHeight;
-          var offset = windowHeight * 0.15; // offset
+          var offset = (windowHeight - 20) / 2;
 
           if (rect.top >= offset && rect.bottom <= windowHeight - offset) {
             startLoop();
