@@ -130,7 +130,7 @@ function swiperMode(swiperInstance) {
           keyboard: {
             enabled: true,
           },
-          shortSwipes: false,
+          longSwipesRatio: 0.01,
           on: {
             slideChange: (swiper) => {
               handleVideos($('.swiper-wrapper'), swiper.realIndex);
