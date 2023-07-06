@@ -110,7 +110,7 @@ function makeWorld() {
     if (bodiesDom[i].classList.contains('item')) {
       var body = Bodies.rectangle(
         rect.width / 2 + Math.floor((Math.random() * rect.width) / 2) - rect.width / 4,
-        rect.height / 2 + Math.floor((Math.random() * rect.height) / 2) - rect.height / 4,
+        -50,
         (rect.width * bodiesDom[i].offsetWidth) / window.innerWidth,
         (rect.height * bodiesDom[i].offsetHeight) / window.innerHeight,
         {
@@ -144,7 +144,7 @@ function makeWorld() {
 
   World.add(engine.world, bodies);
 
-  engine.world.gravity.y = 0.5;
+  engine.world.gravity.y = 1;
 
   var mouse = Mouse.create(render.canvas),
     mouseConstraint = MouseConstraint.create(engine, {
