@@ -164,7 +164,20 @@ function makeWorld() {
   let isScrolling = false;
 
   // Scroll event listener
+  // Scroll event listener
   mouseConstraint.mouse.element.addEventListener('mousewheel', function () {
+    handleScrollStart();
+  });
+
+  mouseConstraint.mouse.element.addEventListener('DOMMouseScroll', function () {
+    handleScrollStart();
+  });
+
+  mouseConstraint.mouse.element.addEventListener('touchmove', function () {
+    handleScrollStart();
+  });
+
+  function handleScrollStart() {
     isScrolling = true;
     mouseConstraint.mouse.element.removeEventListener(
       'mousewheel',
@@ -174,10 +187,22 @@ function makeWorld() {
       'DOMMouseScroll',
       mouseConstraint.mouse.mousewheel
     );
+    mouseConstraint.mouse.element.removeEventListener(
+      'touchmove',
+      mouseConstraint.mouse.mousewheel
+    );
+  }
+
+  // Mouse up / touch end event listener
+  mouseConstraint.mouse.element.addEventListener('mouseup', function () {
+    handleScrollEnd();
   });
 
-  // mousedown event listener
-  mouseConstraint.mouse.element.addEventListener('mousedown', function () {
+  mouseConstraint.mouse.element.addEventListener('touchend', function () {
+    handleScrollEnd();
+  });
+
+  function handleScrollEnd() {
     if (isScrolling) {
       isScrolling = false;
       mouseConstraint.mouse.element.addEventListener(
@@ -188,8 +213,9 @@ function makeWorld() {
         'DOMMouseScroll',
         mouseConstraint.mouse.mousewheel
       );
+      mouseConstraint.mouse.element.addEventListener('touchmove', mouseConstraint.mouse.mousewheel);
     }
-  });
+  }
 
   // keep the mouse in sync with rendering
   render.mouse = mouse;
