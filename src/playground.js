@@ -9,42 +9,64 @@ ctx.lineCap = 'round'; // Set the line cap to round
 
 const imageDataInput = document.getElementById('base64Image');
 
-canvas.addEventListener('mousedown', (e) => {
+function getCoordinates(e, touch = false) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const offsetX = (touch ? e.touches[0].clientX : e.clientX) - rect.left;
+  const offsetY = (touch ? e.touches[0].clientY : e.clientY) - rect.top;
+
+  return { offsetX: offsetX * scaleX, offsetY: offsetY * scaleY };
+}
+
+function startDrawing(e, touch = false) {
   drawing = true;
-
-  // Remove Disabled State
   $('#createBtn').removeClass('disabled');
-
-  // Draw
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const offsetX = e.clientX - rect.left;
-  const offsetY = e.clientY - rect.top;
+  const { offsetX, offsetY } = getCoordinates(e, touch);
   ctx.beginPath();
-  ctx.moveTo(offsetX * scaleX, offsetY * scaleY);
-});
+  ctx.moveTo(offsetX, offsetY);
+}
 
-canvas.addEventListener('mousemove', (e) => {
+function draw(e, touch = false) {
   if (!drawing) return;
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const offsetX = e.clientX - rect.left;
-  const offsetY = e.clientY - rect.top;
-  ctx.lineTo(offsetX * scaleX, offsetY * scaleY);
+  const { offsetX, offsetY } = getCoordinates(e, touch);
+  ctx.lineTo(offsetX, offsetY);
   ctx.stroke();
-});
+}
 
-canvas.addEventListener('mouseup', () => {
+function stopDrawing() {
+  if (!drawing) return;
   drawing = false;
-
   base64Image = canvas.toDataURL('');
-
-  // Set the value of the hidden input field
   imageDataInput.removeAttribute('maxlength');
   imageDataInput.value = base64Image;
-});
+}
+
+// Mouse events
+canvas.addEventListener('mousedown', startDrawing);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDrawing);
+
+// Touch events
+canvas.addEventListener(
+  'touchstart',
+  (e) => {
+    e.preventDefault();
+    startDrawing(e, true);
+  },
+  { passive: false }
+);
+
+canvas.addEventListener(
+  'touchmove',
+  (e) => {
+    e.preventDefault();
+    draw(e, true);
+  },
+  { passive: false }
+);
+
+canvas.addEventListener('touchend', stopDrawing);
 
 // Create Note
 $('#createBtn').on('click', async function () {
