@@ -108,11 +108,10 @@ function makeWorld() {
   var disturbers = [];
   for (var i = 0, l = bodiesDom.length; i < l; i++) {
     if (bodiesDom[i].classList.contains('item')) {
-      var body = Bodies.rectangle(
+      var body = Bodies.circle(
         rect.width / 2 + Math.floor((Math.random() * rect.width) / 2) - rect.width / 4,
         -50,
-        (rect.width * bodiesDom[i].offsetWidth) / window.innerWidth,
-        (rect.height * bodiesDom[i].offsetHeight) / window.innerHeight,
+        bodiesDom[i].offsetWidth / 1.65,
         {
           restitution: 0.5,
           friction: 0,
