@@ -1,15 +1,21 @@
-/* --- Drawing */
+/* --- Note Modal */
 const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 let drawing = false;
 let base64Image;
 
-ctx.lineWidth = 5; // Set the line width to 5 pixels
+ctx.lineWidth = 15;
+ctx.lineCap = 'round'; // Set the line cap to round
 
 const imageDataInput = document.getElementById('base64Image');
 
 canvas.addEventListener('mousedown', (e) => {
   drawing = true;
+
+  // Remove Disabled State
+  $('#createBtn').removeClass('disabled');
+
+  // Draw
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
@@ -40,6 +46,7 @@ canvas.addEventListener('mouseup', () => {
   imageDataInput.value = base64Image;
 });
 
+// Create Note
 $('#createBtn').on('click', async function () {
   const response = await fetch('https://api.zdenek.design/api/upload', {
     method: 'POST',
@@ -50,14 +57,30 @@ $('#createBtn').on('click', async function () {
   });
 
   const data = await response.json();
-  if (data.success) {
-    console.log('File uploaded successfully. File URL is:', data.fileURL);
-  } else {
-    console.error('File upload error:', data.message);
-  }
+
+  imageDataInput.value = '';
+  $('[name=img-source]').val(data.url);
+  $('#submitBtn').trigger('click');
+  $(document).ajaxComplete(function (event, xhr, settings) {
+    if (settings.url.includes('https://webflow.com/api/v1/form/')) {
+      const isSuccessful = xhr.status === 200;
+      const redirectFormName = 'note-form';
+      const isRedirectForm = settings.data.includes(redirectFormName);
+      if (isSuccessful) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
+    }
+  });
 });
 
-/* --- Modals */
+// Close Note
+$('#closeNote').on('click', function () {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+/* --- PLG Modal */
 const modal = '.plg-modal';
 const modalContent = '.plg-modal_content';
 const modalSlider = '.plg-modal_slider';
