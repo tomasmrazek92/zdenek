@@ -103,7 +103,7 @@ function makeWorld() {
     (wallLeft = Bodies.rectangle(-50, rect.height / 2, 100, rect.height, wallopts)), // left
   ]);
 
-  var bodiesDom = document.querySelectorAll('.plg-note_item');
+  var bodiesDom = $('.plg-note_item:visible');
   var bodies = [];
   var disturbers = [];
   for (var i = 0, l = bodiesDom.length; i < l; i++) {
@@ -309,4 +309,11 @@ var refreshWorld = debounce(function () {
   location.reload();
 }, 500);
 
-window.addEventListener('resize', refreshWorld);
+let width = window.innerWidth;
+
+window.addEventListener('resize', function () {
+  if (window.innerWidth != width) {
+    width = window.innerWidth;
+    refreshWorld();
+  }
+});
