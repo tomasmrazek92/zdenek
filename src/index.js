@@ -12,6 +12,13 @@ $(document).ready(function () {
       menuOpen = false;
     }
   });
+
+  // Dark Mode Click Remove scroll lock
+  $('#dark-mode').on('click', function () {
+    $('html, body').removeClass('overflow-hidden');
+  });
+
+  // Clicking outside of menu
   $('.navbar_menu-overlay').on('click', function () {
     $('.navbar_menu-btn').trigger('click');
   });

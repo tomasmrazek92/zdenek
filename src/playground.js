@@ -1,18 +1,27 @@
 /* --- Note Modal */
-const canvas = document.getElementById('drawingCanvas');
-const ctx = canvas.getContext('2d');
+const canvas1 = document.getElementById('drawingCanvas-dark');
+const ctx1 = canvas1.getContext('2d');
+ctx1.strokeStyle = 'black';
+
+const canvas2 = document.getElementById('drawingCanvas-light');
+const ctx2 = canvas2.getContext('2d');
+ctx2.strokeStyle = 'white';
+
 let drawing = false;
 let base64Image;
 
-ctx.lineWidth = 15;
-ctx.lineCap = 'round'; // Set the line cap to round
+ctx1.lineWidth = 15;
+ctx1.lineCap = 'round'; // Set the line cap to round
+ctx2.lineWidth = 15;
+ctx1.lineCap = 'round'; // Set the line cap to round
 
-const imageDataInput = document.getElementById('base64Image');
+const imageDarkDataInput = document.getElementById('base64Image-dark');
+const imageLightDataInput = document.getElementById('base64Image-light');
 
 function getCoordinates(e, touch = false) {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
+  const rect = canvas1.getBoundingClientRect();
+  const scaleX = canvas1.width / rect.width;
+  const scaleY = canvas1.height / rect.height;
   const offsetX = (touch ? e.touches[0].clientX : e.clientX) - rect.left;
   const offsetY = (touch ? e.touches[0].clientY : e.clientY) - rect.top;
 
@@ -23,32 +32,36 @@ function startDrawing(e, touch = false) {
   drawing = true;
   $('#createBtn').removeClass('disabled');
   const { offsetX, offsetY } = getCoordinates(e, touch);
-  ctx.beginPath();
-  ctx.moveTo(offsetX, offsetY);
+  ctx1.beginPath();
+  ctx1.moveTo(offsetX, offsetY);
 }
 
 function draw(e, touch = false) {
   if (!drawing) return;
   const { offsetX, offsetY } = getCoordinates(e, touch);
-  ctx.lineTo(offsetX, offsetY);
-  ctx.stroke();
+  ctx1.lineTo(offsetX, offsetY);
+  ctx1.stroke();
+  ctx2.lineTo(offsetX, offsetY);
+  ctx2.stroke();
 }
 
 function stopDrawing() {
   if (!drawing) return;
   drawing = false;
-  base64Image = canvas.toDataURL('');
-  imageDataInput.removeAttribute('maxlength');
-  imageDataInput.value = base64Image;
+  let base64ImageBlack = canvas1.toDataURL();
+  let base64ImageWhite = canvas2.toDataURL();
+
+  imageDarkDataInput.value = base64ImageBlack;
+  imageLightDataInput.value = base64ImageWhite;
 }
 
 // Mouse events
-canvas.addEventListener('mousedown', startDrawing);
-canvas.addEventListener('mousemove', draw);
-canvas.addEventListener('mouseup', stopDrawing);
+canvas1.addEventListener('mousedown', startDrawing);
+canvas1.addEventListener('mousemove', draw);
+canvas1.addEventListener('mouseup', stopDrawing);
 
 // Touch events
-canvas.addEventListener(
+canvas1.addEventListener(
   'touchstart',
   (e) => {
     e.preventDefault();
@@ -57,7 +70,7 @@ canvas.addEventListener(
   { passive: false }
 );
 
-canvas.addEventListener(
+canvas1.addEventListener(
   'touchmove',
   (e) => {
     e.preventDefault();
@@ -66,10 +79,15 @@ canvas.addEventListener(
   { passive: false }
 );
 
-canvas.addEventListener('touchend', stopDrawing);
+canvas1.addEventListener('touchend', stopDrawing);
 
 // Create Note
 $('#createBtn').on('click', async function () {
+  // Prevent multiple submissions
+  $(this).addClass('disabled');
+  $(this).text('Submitting..');
+
+  // Call API
   const response = await fetch('https://api.zdenek.design/api/upload', {
     method: 'POST',
     headers: {
@@ -82,6 +100,8 @@ $('#createBtn').on('click', async function () {
 
   imageDataInput.value = '';
   $('[name=img-source]').val(data.url);
+
+  // Submit the Form
   $('#submitBtn').trigger('click');
   $(document).ajaxComplete(function (event, xhr, settings) {
     if (settings.url.includes('https://webflow.com/api/v1/form/')) {
@@ -97,9 +117,15 @@ $('#createBtn').on('click', async function () {
   });
 });
 
+// Open modal
+$('.plg-note_item.button-item').on('click', function () {
+  $('html,body').addClass('overflow-hidden');
+});
+
 // Close Note
-$('#closeNote').on('click', function () {
+$('[close-note]').on('click', function () {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  $('html,body').removeClass('overflow-hidden');
 });
 
 /* --- PLG Modal */
