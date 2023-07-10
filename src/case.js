@@ -5,15 +5,20 @@ $('.section_case-hero').each(function () {
     scrollTrigger: {
       trigger: $(this),
       start: 'top top',
-      end: 'bottom bottom',
+      end: 'bottom top',
       scrub: 0.2,
       invalidateOnRefresh: true,
+      markers: true,
     },
   });
 
   tl.to('.case-hero_bg', {
-    opacity: 0.4,
-    scale: 1.1,
+    keyframes: {
+      '50%': {
+        opacity: 0.4,
+      },
+    },
+    scale: 1.2,
   });
   gsap
     .timeline({

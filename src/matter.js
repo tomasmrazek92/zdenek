@@ -160,6 +160,7 @@ function makeWorld() {
     });
 
   World.add(engine.world, mouseConstraint);
+  $('.plg-note').css('opacity', '1');
 
   let isScrolling = false;
 
@@ -314,7 +315,9 @@ function makeWorld() {
 }
 
 // Call World
-makeWorld();
+setTimeout(() => {
+  makeWorld();
+}, 1000);
 
 // Reload page every 500ms to handle resize
 function debounce(func, wait, immediate) {
