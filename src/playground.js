@@ -98,8 +98,9 @@ $('#createBtn').on('click', async function () {
 
   const data = await response.json();
 
-  imageDataInput.value = '';
-  $('[name=img-source]').val(data.url);
+  imageDarkDataInput.value = '';
+  imageLightDataInput.value = '';
+  $(imageDarkDataInput).val(data.url);
 
   // Submit the Form
   $('#submitBtn').trigger('click');
