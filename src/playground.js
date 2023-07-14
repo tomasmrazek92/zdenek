@@ -8,7 +8,8 @@ const ctx2 = canvas2.getContext('2d');
 ctx2.strokeStyle = 'white';
 
 let drawing = false;
-let base64Image;
+let base64ImageBlack;
+let base64ImageWhite;
 
 ctx1.lineWidth = 15;
 ctx1.lineCap = 'round'; // Set the line cap to round
@@ -30,7 +31,7 @@ function getCoordinates(e, touch = false) {
 
 function startDrawing(e, touch = false) {
   drawing = true;
-  $('#createBtn').removeClass('disabled');
+  toggleState(true);
   const { offsetX, offsetY } = getCoordinates(e, touch);
   ctx1.beginPath();
   ctx1.moveTo(offsetX, offsetY);
@@ -48,11 +49,13 @@ function draw(e, touch = false) {
 function stopDrawing() {
   if (!drawing) return;
   drawing = false;
-  let base64ImageBlack = canvas1.toDataURL();
-  let base64ImageWhite = canvas2.toDataURL();
+  base64ImageBlack = canvas1.toDataURL();
+  base64ImageWhite = canvas2.toDataURL();
+}
 
-  imageDarkDataInput.value = base64ImageBlack;
-  imageLightDataInput.value = base64ImageWhite;
+function toggleState(state) {
+  $('#createBtn').toggleClass('disabled', !state);
+  $('#canvas-embed').toggleClass('active', state);
 }
 
 // Mouse events
@@ -85,37 +88,72 @@ canvas1.addEventListener('touchend', stopDrawing);
 $('#createBtn').on('click', async function () {
   // Prevent multiple submissions
   $(this).addClass('disabled');
-  $(this).text('Submitting..');
 
-  // Call API
-  const response = await fetch('https://api.zdenek.design/api/upload', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ base64: base64Image }),
-  });
+  var dots = '.';
+  var btn = $(this); // Save reference to button
+  var submitInterval = setInterval(function () {
+    dots = dots.length < 3 ? dots + '.' : '.';
+    btn.text('Submitting' + dots); // Use saved button reference
+  }, 500);
 
-  const data = await response.json();
+  // API Call
+  const uploadImage = async (base64Image) => {
+    try {
+      const response = await fetch('https://api.zdenek.design/api/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ base64: base64Image }),
+      });
 
-  imageDarkDataInput.value = '';
-  imageLightDataInput.value = '';
-  $(imageDarkDataInput).val(data.url);
+      if (!response.ok) {
+        const errorResponse = await response.text();
+        console.error('Server responded with an error:', errorResponse);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-  // Submit the Form
-  $('#submitBtn').trigger('click');
-  $(document).ajaxComplete(function (event, xhr, settings) {
-    if (settings.url.includes('https://webflow.com/api/v1/form/')) {
-      const isSuccessful = xhr.status === 200;
-      const redirectFormName = 'note-form';
-      const isRedirectForm = settings.data.includes(redirectFormName);
-      if (isSuccessful) {
-        setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`There was a problem with the fetch operation: ${error.message}`);
+      if (error.stack) {
+        console.error(error.stack);
       }
     }
-  });
+  };
+
+  // use Promise.all to wait for both promises to resolve
+  Promise.all([uploadImage(base64ImageBlack), uploadImage(base64ImageWhite)])
+    .then(([dataDark, dataLight]) => {
+      // Success: both promises have resolved
+      console.log('Dark image data:', dataDark.url);
+      console.log('Light image data:', dataLight.url);
+
+      imageDarkDataInput.value = '';
+      imageLightDataInput.value = '';
+
+      $('[name="img-source-dark"').val(dataDark.url);
+      $('[name="img-source-light"').val(dataLight.url);
+
+      // Submit the Form
+      $('#submitBtn').trigger('click');
+      $(document).ajaxComplete(function (event, xhr, settings) {
+        if (settings.url.includes('https://webflow.com/api/v1/form/')) {
+          const isSuccessful = xhr.status === 200;
+          const redirectFormName = 'note-form';
+          const isRedirectForm = settings.data.includes(redirectFormName);
+          if (isSuccessful) {
+            clearInterval(submitInterval);
+            startRotationAndTextUpdate();
+            setTimeout(() => {
+              window.location.reload();
+            }, 5000);
+          }
+        }
+      });
+    })
+    .catch((error) => console.log('Caught an error:', error));
 });
 
 // Open modal
@@ -125,7 +163,9 @@ $('.plg-note_item.button-item').on('click', function () {
 
 // Close Note
 $('[close-note]').on('click', function () {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx1.clearRect(0, 0, canvas1.width, canvas1.height);
+  ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+  toggleState(false);
   $('html,body').removeClass('overflow-hidden');
 });
 
@@ -185,12 +225,16 @@ $('.plg-visuals_visual').on('click', function () {
     });
 
     // Play All videos
-    if (window.matchMedia('(min-width: 0px) and (max-width: 991px)')) {
+    if (window.matchMedia('(min-width: 0px) and (max-width: 991px)').matches) {
       $(modalContent)
         .find('video')
         .each(function () {
-          $(this)[0].load();
-          $(this)[0].play();
+          var video = $(this)[0];
+          video.load();
+          video.muted = true; // Mute the video
+          video.oncanplaythrough = function () {
+            video.play();
+          };
         });
     }
   });
@@ -328,3 +372,49 @@ const disableScroll = () => {
     $('html, body').scrollTop(scrollPosition).removeClass('overflow-hidden');
   }
 };
+
+// Submitting Animation
+function startRotationAndTextUpdate() {
+  var degree = 0;
+  var textArray = [
+    'Optimizing for Nokia3310...',
+    'Optimizing for IE6...',
+    'Minions work hard to save your brilliant massage...',
+    'Optimizing for Apple Watch...',
+    'Summoning loading minions...',
+    'Polishing pixels, one by one...',
+    'Unleashing loading ninjas...',
+    'Summoning loading unicorns...',
+    'This 5s is for you, breathe in, breathe out...',
+    '5s can be long right?...',
+    "Tap your screen three times and whisper 'loading' for a faster results..",
+    'Patient bring results...',
+    'Just a second, I have to start up my windows...',
+  ];
+
+  // Rotate the element every 500ms
+  $('#rotateBox').addClass('spin');
+
+  // Update the text of another element every 1000ms
+  // Shuffle array
+  textArray.sort(() => Math.random() - 0.5);
+
+  var index = 0;
+  var textInterval = setInterval(function () {
+    $('#text-help').text(textArray[index]);
+    index++;
+    if (index === textArray.length) {
+      clearInterval(textInterval);
+    }
+  }, 1000);
+
+  // Countdown from 5 every second
+  var countdownValue = 5;
+  var countdownInterval = setInterval(function () {
+    countdownValue--;
+    $('#countdownText').text(countdownValue);
+    if (countdownValue === 0) {
+      clearInterval(countdownInterval);
+    }
+  }, 1000);
+}

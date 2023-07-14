@@ -8,7 +8,6 @@ $('.section_case-hero').each(function () {
       end: 'bottom top',
       scrub: 0.2,
       invalidateOnRefresh: true,
-      markers: true,
     },
   });
 

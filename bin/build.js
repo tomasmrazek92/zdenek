@@ -16,6 +16,7 @@ const ENTRY_POINTS = [
   'src/work.js',
   'src/darkmode.js',
   'src/matter.js',
+  'src/404.js',
 ];
 
 // Config dev serving
