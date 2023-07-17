@@ -35,6 +35,8 @@ function startDrawing(e, touch = false) {
   const { offsetX, offsetY } = getCoordinates(e, touch);
   ctx1.beginPath();
   ctx1.moveTo(offsetX, offsetY);
+  ctx2.beginPath();
+  ctx2.moveTo(offsetX, offsetY);
 }
 
 function draw(e, touch = false) {
