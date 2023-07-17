@@ -395,7 +395,7 @@ function startRotationAndTextUpdate() {
   // Rotate the element every 500ms
   $('#rotateBox').addClass('spin');
 
-  // Update the text of another element every 1000ms
+  // Update the text of another element every 2000ms
   // Shuffle array
   textArray.sort(() => Math.random() - 0.5);
 
@@ -406,7 +406,7 @@ function startRotationAndTextUpdate() {
     if (index === textArray.length) {
       clearInterval(textInterval);
     }
-  }, 1000);
+  }, 2000);
 
   // Countdown from 5 every second
   var countdownValue = 5;

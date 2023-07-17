@@ -34,5 +34,5 @@ $(document).ready(function () {
       index = 0;
       classes = shuffle(classes);
     }
-  }, 500); // 500 seconds
+  }, 2000);
 });
